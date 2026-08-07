@@ -138,12 +138,18 @@ Não existe etapa de build — é só subir a pasta `site/`.
 3. Pronto, você recebe um link do tipo `seu-site.netlify.app` na hora
 
 ### Vercel
-```bash
-npm i -g vercel
-cd site
-vercel        # siga as perguntas; quando pedir build, deixe em branco
-vercel --prod
-```
+O repositório já vem configurado — o `vercel.json` na raiz aponta para a pasta `site/`
+e desliga a etapa de build, e o `package.json` fixa o Node em `24.x`.
+Basta conectar o repositório na Vercel e fazer o deploy da branch.
+
+> **Se o build falhar com "Found invalid or discontinued Node.js Version: 18.x":**
+> o `engines.node` do `package.json` resolve isso a partir do próximo deploy.
+> Para garantir, dá para trocar também em **Project Settings → General →
+> Node.js Version → 24.x** e clicar em *Redeploy*.
+
+> **Não mexa em Root Directory nas configurações da Vercel.** Ele precisa continuar
+> na raiz do repositório, porque é lá que está o `vercel.json` que aponta para `site/`.
+> Se você definir Root Directory como `site`, apague o `outputDirectory` do `vercel.json`.
 
 ### GitHub Pages
 1. No GitHub: **Settings → Pages**

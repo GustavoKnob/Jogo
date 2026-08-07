@@ -1,0 +1,12 @@
+{
+  "name": "jogo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Repositorio com o jogo do numero secreto (raiz) e o site institucional de limpeza (pasta site/).",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "site": "cd site && python3 -m http.server 8000"
+  }
+}
