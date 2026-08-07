@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800" role="img" aria-label="ANTES placeholder">
+  <rect width="1200" height="800" fill="#D9DEE5"/>
+  <rect x="0" y="0" width="1200" height="560" fill="#CFD5DD"/>
+  <rect x="0" y="560" width="1200" height="240" fill="#B7BFC9"/>
+  <!-- janela -->
+  <rect x="150" y="130" width="330" height="250" rx="10" fill="#CBD3DC" stroke="#A8B2BE" stroke-width="10"/>
+  <path d="M315 130 V380 M150 255 H480" stroke="#A8B2BE" stroke-width="10"/>
+  <!-- bancada / armario -->
+  <rect x="620" y="360" width="430" height="200" rx="14" fill="#A8B2BE"/>
+  <rect x="620" y="340" width="430" height="30" rx="8" fill="#8F9BA9" opacity="0.5"/>
+  <path d="M835 380 V560" stroke="#B7BFC9" stroke-width="8"/>
+  <circle cx="800" cy="470" r="10" fill="#B7BFC9"/>
+  <circle cx="870" cy="470" r="10" fill="#B7BFC9"/>
+  <!-- planta -->
+  <rect x="215" y="470" width="90" height="90" rx="12" fill="#8F9BA9" opacity="0.45"/>
+  <path d="M260 470 C260 400 215 400 220 356 C270 366 268 420 260 470 Z" fill="#8F9BA9" opacity="0.4"/>
+  <path d="M262 470 C262 410 310 402 312 366 C266 372 258 430 262 470 Z" fill="#8F9BA9" opacity="0.3"/>
+  <!-- haze de sujeira -->
+  <rect width="1200" height="800" fill="#7C8794" opacity="0.153"/>
+
+  <g fill="#8B93A0" opacity="0.35">
+    <ellipse cx="300" cy="470" rx="70" ry="26"/>
+    <ellipse cx="880" cy="520" rx="95" ry="30"/>
+    <ellipse cx="640" cy="612" rx="130" ry="24"/>
+    <circle cx="470" cy="250" r="16"/>
+    <circle cx="516" cy="286" r="9"/>
+    <circle cx="742" cy="222" r="12"/>
+  </g>
+  <g stroke="#8B93A0" stroke-width="7" stroke-linecap="round" opacity="0.3">
+    <path d="M250 300 L330 360"/><path d="M340 292 L268 356"/>
+    <path d="M900 300 L960 352"/>
+  </g>
+  <g font-family="Inter, Helvetica, Arial, sans-serif" text-anchor="middle">
+    <text x="312" y="394" font-size="82" font-weight="700" fill="#5D6B7A" letter-spacing="10">ANTES</text>
+    <text x="312" y="452" font-size="32" font-weight="500" fill="#5D6B7A" opacity="0.8">images/before-2.svg</text>
+  </g>
+</svg>

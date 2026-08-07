@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800" role="img" aria-label="DEPOIS placeholder">
+  <rect width="1200" height="800" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="1200" height="560" fill="#FFFFFF"/>
+  <rect x="0" y="560" width="1200" height="240" fill="#EEF5FF"/>
+  <!-- janela -->
+  <rect x="150" y="130" width="330" height="250" rx="10" fill="#EEF5FF" stroke="#DCE9FB" stroke-width="10"/>
+  <path d="M315 130 V380 M150 255 H480" stroke="#DCE9FB" stroke-width="10"/>
+  <!-- bancada / armario -->
+  <rect x="620" y="360" width="430" height="200" rx="14" fill="#DCE9FB"/>
+  <rect x="620" y="340" width="430" height="30" rx="8" fill="#1668E3" opacity="0.9"/>
+  <path d="M835 380 V560" stroke="#EEF5FF" stroke-width="8"/>
+  <circle cx="800" cy="470" r="10" fill="#EEF5FF"/>
+  <circle cx="870" cy="470" r="10" fill="#EEF5FF"/>
+  <!-- planta -->
+  <rect x="215" y="470" width="90" height="90" rx="12" fill="#1668E3" opacity="0.85"/>
+  <path d="M260 470 C260 400 215 400 220 356 C270 366 268 420 260 470 Z" fill="#1668E3" opacity="0.7"/>
+  <path d="M262 470 C262 410 310 402 312 366 C266 372 258 430 262 470 Z" fill="#1668E3" opacity="0.5"/>
+  <!-- haze de sujeira -->
+  <rect width="1200" height="800" fill="#7C8794" opacity="0.0"/>
+
+  <g fill="#1668E3" opacity="0.9">
+    <path d="M980 210l14 38 38 14-38 14-14 38-14-38-38-14 38-14z"/>
+    <path d="M1058 300l9 24 24 9-24 9-9 24-9-24-24-9 24-9z"/>
+    <path d="M918 318l7 18 18 7-18 7-7 18-7-18-18-7 18-7z"/>
+  </g>
+  <path d="M180 560 L1020 560" stroke="#1668E3" stroke-opacity="0.25" stroke-width="4" stroke-linecap="round"/>
+  <g font-family="Inter, Helvetica, Arial, sans-serif" text-anchor="middle">
+    <text x="888" y="394" font-size="82" font-weight="700" fill="#8FB0DD" letter-spacing="10">DEPOIS</text>
+    <text x="888" y="452" font-size="32" font-weight="500" fill="#8FB0DD" opacity="0.8">images/after-2.svg</text>
+  </g>
+</svg>
