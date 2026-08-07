@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<!--
+  =============================================================================
+  index.html — ESTRUTURA DA PÁGINA / PAGE SHELL
+  -----------------------------------------------------------------------------
+  Você normalmente NÃO precisa editar este arquivo.
+  Nome da empresa, telefone, e-mail, textos, fotos e cores ficam em content.js.
+  You normally do NOT need to edit this file — everything lives in content.js.
+  =============================================================================
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- SEO: estes valores são sobrescritos pelo content.js ao carregar.
+       Edite metaTitle / metaDescription lá, não aqui. -->
+  <title>Clean Co — Home, Office & End of Lease Cleaning</title>
+  <meta name="description" content="Reliable home, office and end of lease cleaning. Punctual team, quality products, spotless results." />
+  <meta name="theme-color" content="#1668E3" />
+
+  <!-- Compartilhamento por link (WhatsApp, Facebook…) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Clean Co — Cleaning Services" />
+  <meta property="og:description" content="Homes, offices and end of lease cleans done properly." />
+  <meta property="og:image" content="images/og-cover.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- FAVICON: troque o arquivo site/favicon.svg pelo seu ícone -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="favicon.svg" />
+
+  <!-- Fontes (se ficar sem internet, cai na fonte do sistema automaticamente) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+  <a class="skip-link" href="#main" data-i18n="skipToContent">Skip to content</a>
+
+  <!-- CABEÇALHO: montado por js/main.js a partir do content.js -->
+  <header class="site-header" id="site-header"></header>
+
+  <main id="main">
+    <section class="hero" id="hero" aria-labelledby="hero-title"></section>
+    <section class="section services" id="services" aria-labelledby="services-title"></section>
+    <section class="section portfolio" id="work" aria-labelledby="work-title"></section>
+    <section class="section about" id="about" aria-labelledby="about-title"></section>
+    <section class="section contact" id="contact" aria-labelledby="contact-title"></section>
+  </main>
+
+  <!-- RODAPÉ: montado por js/main.js -->
+  <footer class="site-footer" id="site-footer"></footer>
+
+  <!-- BOTÃO FLUTUANTE DE WHATSAPP: aparece só se `whatsapp` estiver preenchido no content.js -->
+  <div id="whatsapp-float"></div>
+
+  <script src="content.js"></script>
+  <script src="js/main.js" defer></script>
+</body>
+</html>
