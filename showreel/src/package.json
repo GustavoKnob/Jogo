@@ -1,0 +1,6 @@
+{
+  "name": "showreel-claude",
+  "private": true,
+  "description": "Showreel 15 s para Reels gerado 100% por código",
+  "dependencies": { "@napi-rs/canvas": "1.0.11" }
+}
