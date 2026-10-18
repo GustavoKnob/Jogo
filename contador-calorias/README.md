@@ -1,6 +1,8 @@
 # Rango: contador de calorias
 
 App mobile (iOS e Android) para registrar refeições, contar calorias e macros e acompanhar o peso.
+![Telas do app](docs/telas.png)
+
 Feito com **Expo (React Native) + TypeScript**. Os dados ficam salvos no próprio celular, sem servidor.
 
 ## O que já funciona (MVP)
