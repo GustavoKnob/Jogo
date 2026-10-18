@@ -1,14 +1,17 @@
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Alert, Platform, Pressable, ScrollView, Share, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Cartao, Ionicons, s, type NomeIcone } from '../../components/ui';
 import { formatarNumero } from '../../lib/calculos';
 import { pesoAtual, resumoDia, sequencia, useDados } from '../../lib/store';
-import { cores } from '../../lib/tema';
 import { hoje } from '../../lib/datas';
+import { cores } from '../../lib/tema';
 
 export default function Mais() {
   const { estado, apagarTudo } = useDados();
+  const [aviso, setAviso] = useState<string | null>(null);
+  const [confirmandoApagar, setConfirmandoApagar] = useState(false);
   const perfil = estado.perfil!;
   const atual = pesoAtual(estado);
   const variacao = atual - perfil.pesoInicial;
@@ -17,11 +20,12 @@ export default function Mais() {
   const exportar = async () => {
     const json = JSON.stringify(estado, null, 2);
     if (Platform.OS === 'web') {
-      const blob = new Blob([json], { type: 'application/json' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `rango-${hoje()}.json`;
-      a.click();
+      try {
+        await navigator.clipboard.writeText(json);
+        setAviso('Dados copiados. Cole num e-mail ou nas notas para guardar.');
+      } catch {
+        setAviso('Não foi possível copiar neste navegador.');
+      }
       return;
     }
     await Share.share({ message: json, title: 'Meus dados do Rango' });
@@ -29,8 +33,13 @@ export default function Mais() {
 
   const apagar = () => {
     const msg = 'Isso apaga perfil, diário, pesos e alimentos criados. Não dá para desfazer.';
+    // No navegador, confirma com um segundo toque.
     if (Platform.OS === 'web') {
-      if (window.confirm(`Apagar todos os dados?\n${msg}`)) apagarTudo();
+      if (confirmandoApagar) apagarTudo();
+      else {
+        setConfirmandoApagar(true);
+        setAviso(`Toque de novo em "Apagar todos os dados" para confirmar. ${msg}`);
+      }
       return;
     }
     Alert.alert('Apagar todos os dados?', msg, [
@@ -76,11 +85,16 @@ export default function Mais() {
         </Cartao>
 
         <Cartao style={{ paddingVertical: 4 }}>
-          <Item icone="download-outline" titulo="Exportar meus dados" onPress={exportar} />
+          <Item
+            icone={Platform.OS === 'web' ? 'copy-outline' : 'download-outline'}
+            titulo={Platform.OS === 'web' ? 'Copiar meus dados' : 'Exportar meus dados'}
+            onPress={exportar}
+          />
           <Item icone="information-circle-outline" titulo="Sobre e fontes dos dados" onPress={() => router.push('/sobre')} />
           <Item icone="trash-outline" titulo="Apagar todos os dados" cor={cores.perigo} onPress={apagar} ultimo />
         </Cartao>
 
+        {aviso && <Text style={{ color: confirmandoApagar ? cores.perigo : cores.texto, textAlign: 'center' }}>{aviso}</Text>}
         <Text style={[s.suave, { textAlign: 'center', fontSize: 12 }]}>
           Rango 1.0 · seus dados ficam só no seu celular
         </Text>

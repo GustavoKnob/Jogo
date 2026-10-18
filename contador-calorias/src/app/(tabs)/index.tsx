@@ -13,8 +13,9 @@ import type { RefeicaoId } from '../../lib/tipos';
 const COPO = 250;
 
 function confirmar(titulo: string, msg: string, ok: () => void) {
+  // No navegador, janelas de confirmação podem estar bloqueadas: remove direto.
   if (Platform.OS === 'web') {
-    if (window.confirm(`${titulo}\n${msg}`)) ok();
+    ok();
     return;
   }
   Alert.alert(titulo, msg, [
