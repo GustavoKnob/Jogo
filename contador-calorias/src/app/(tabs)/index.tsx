@@ -25,7 +25,7 @@ function confirmar(titulo: string, msg: string, ok: () => void) {
 }
 
 export default function Hoje() {
-  const { estado, removerAlimento, removerExercicio, definirAgua } = useDados();
+  const { estado, removerAlimento, removerExercicio, definirAgua, erroSalvar } = useDados();
   const [data, setData] = useState(hoje());
   const r = resumoDia(estado, data);
   const registrados = diasComRegistro(estado);
@@ -52,6 +52,10 @@ export default function Hoje() {
             <Text style={{ fontWeight: '700', color: cores.texto }}>{seq}</Text>
           </View>
         </View>
+
+        {erroSalvar && (
+          <Text style={{ color: cores.perigo, backgroundColor: '#FDECEA', padding: 10, borderRadius: 10 }}>{erroSalvar}</Text>
+        )}
 
         {/* Semana */}
         <View style={[s.linha, { justifyContent: 'space-between', paddingHorizontal: 4 }]}>

@@ -9,13 +9,14 @@ import { hoje } from '../../lib/datas';
 import { cores } from '../../lib/tema';
 
 export default function Mais() {
-  const { estado, apagarTudo } = useDados();
+  const { estado, excluirPerfilAtual, entrar, perfilAtivo, ondeSalva, erroSalvar } = useDados();
   const [aviso, setAviso] = useState<string | null>(null);
   const [confirmandoApagar, setConfirmandoApagar] = useState(false);
   const perfil = estado.perfil!;
   const atual = pesoAtual(estado);
   const variacao = atual - perfil.pesoInicial;
   const meta = resumoDia(estado, hoje()).meta;
+  const nomePerfil = perfilAtivo?.nome || perfil.nome || 'Você';
 
   const exportar = async () => {
     const json = JSON.stringify(estado, null, 2);
@@ -32,19 +33,19 @@ export default function Mais() {
   };
 
   const apagar = () => {
-    const msg = 'Isso apaga perfil, diário, pesos e alimentos criados. Não dá para desfazer.';
+    const msg = `Isso apaga o perfil ${nomePerfil} com diário, pesos e alimentos criados. Não dá para desfazer.`;
     // No navegador, confirma com um segundo toque.
     if (Platform.OS === 'web') {
-      if (confirmandoApagar) apagarTudo();
+      if (confirmandoApagar) excluirPerfilAtual();
       else {
         setConfirmandoApagar(true);
-        setAviso(`Toque de novo em "Apagar todos os dados" para confirmar. ${msg}`);
+        setAviso(`Toque de novo em "Excluir este perfil" para confirmar. ${msg}`);
       }
       return;
     }
-    Alert.alert('Apagar todos os dados?', msg, [
+    Alert.alert('Excluir este perfil?', msg, [
       { text: 'Cancelar', style: 'cancel' },
-      { text: 'Apagar', style: 'destructive', onPress: apagarTudo },
+      { text: 'Excluir', style: 'destructive', onPress: excluirPerfilAtual },
     ]);
   };
 
@@ -65,10 +66,10 @@ export default function Mais() {
             }}
           >
             <Text style={{ fontSize: 26, fontWeight: '800', color: cores.primaria }}>
-              {(perfil.nome || 'R').charAt(0).toUpperCase()}
+              {nomePerfil.charAt(0).toUpperCase()}
             </Text>
           </View>
-          <Text style={[s.forte, { fontSize: 20 }]}>{perfil.nome || 'Você'}</Text>
+          <Text style={[s.forte, { fontSize: 20 }]}>{nomePerfil}</Text>
           <View style={[s.linha, { gap: 28, marginTop: 6 }]}>
             <Info valor={String(sequencia(estado))} rotulo="dias seguidos" />
             <Info valor={`${variacao > 0 ? '+' : ''}${formatarNumero(variacao, 1)} kg`} rotulo="desde o início" />
@@ -77,6 +78,7 @@ export default function Mais() {
         </Cartao>
 
         <Cartao style={{ paddingVertical: 4 }}>
+          <Item icone="people-outline" titulo="Trocar de perfil" onPress={() => entrar(null)} />
           <Item icone="person-outline" titulo="Meu perfil e objetivo" onPress={() => router.push({ pathname: '/onboarding', params: { editar: '1' } })} />
           <Item icone="flag-outline" titulo="Metas de calorias, macros e água" onPress={() => router.push('/metas')} />
           <Item icone="scale-outline" titulo="Registrar peso" onPress={() => router.push('/peso')} />
@@ -91,12 +93,14 @@ export default function Mais() {
             onPress={exportar}
           />
           <Item icone="information-circle-outline" titulo="Sobre e fontes dos dados" onPress={() => router.push('/sobre')} />
-          <Item icone="trash-outline" titulo="Apagar todos os dados" cor={cores.perigo} onPress={apagar} ultimo />
+          <Item icone="trash-outline" titulo="Excluir este perfil" cor={cores.perigo} onPress={apagar} ultimo />
         </Cartao>
 
+        {erroSalvar && <Text style={{ color: cores.perigo, textAlign: 'center' }}>{erroSalvar}</Text>}
         {aviso && <Text style={{ color: confirmandoApagar ? cores.perigo : cores.texto, textAlign: 'center' }}>{aviso}</Text>}
         <Text style={[s.suave, { textAlign: 'center', fontSize: 12 }]}>
-          Rango 1.0 · seus dados ficam só no seu celular
+          Rango 1.1 ·{' '}
+          {ondeSalva === 'nuvem' ? 'dados salvos na sua conta do claude.ai' : 'dados salvos neste aparelho'}
         </Text>
       </ScrollView>
     </SafeAreaView>

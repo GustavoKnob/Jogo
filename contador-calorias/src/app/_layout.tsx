@@ -1,12 +1,14 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, View } from 'react-native';
+import { SeletorPerfil } from '../components/SeletorPerfil';
 import { ProvedorDados, useDados } from '../lib/store';
 import { cores } from '../lib/tema';
 
 function Navegacao() {
-  const { carregado } = useDados();
-  if (!carregado) {
+  const { carregado, perfilAtivo, abrindo } = useDados();
+  if (carregado && !perfilAtivo && !abrindo) return <SeletorPerfil />;
+  if (!carregado || abrindo) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: cores.fundo }}>
         <ActivityIndicator color={cores.primaria} />

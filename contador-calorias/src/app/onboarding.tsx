@@ -72,7 +72,7 @@ function mascaraData(t: string) {
 
 export default function Onboarding() {
   const { editar } = useLocalSearchParams<{ editar?: string }>();
-  const { estado, salvarPerfil, atualizarPerfil, registrarPeso } = useDados();
+  const { estado, salvarPerfil, atualizarPerfil, registrarPeso, perfilAtivo } = useDados();
   const existente = editar ? estado.perfil : null;
 
   const [passo, setPasso] = useState(existente ? 1 : 0);
@@ -90,7 +90,7 @@ export default function Onboarding() {
           ritmo: existente.ritmoKgSemana || 0.5,
         }
       : {
-          nome: '',
+          nome: perfilAtivo?.nome ?? '',
           objetivo: 'perder',
           sexo: 'masculino',
           nascimento: '',

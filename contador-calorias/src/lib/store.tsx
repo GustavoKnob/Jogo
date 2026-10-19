@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import tacoJson from '../data/taco.json';
 import { metaCalorias, metaMacrosGramas, somar } from './calculos';
+import { abrirArmazem, CHAVE_PERFIL_ATIVO, type Armazem, type ResumoPerfil } from './armazenamento';
 import { chaveData, hoje, novoId, somarDias } from './datas';
 import type {
   Alimento,
@@ -42,9 +43,7 @@ export function lerData(v?: string): string {
   return v && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : hoje();
 }
 
-const CHAVE = 'rango:estado:v1';
-
-const VAZIO: Estado = {
+export const VAZIO: Estado = {
   versao: 1,
   perfil: null,
   alimentos: [],
@@ -66,38 +65,107 @@ type Acoes = {
   definirAgua(data: string, ml: number): void;
   salvarMeuAlimento(a: Alimento): void;
   removerMeuAlimento(id: string): void;
-  apagarTudo(): void;
 };
 
-type Contexto = { estado: Estado; carregado: boolean } & Acoes;
+type AcoesPerfis = {
+  /** Abre um perfil (ou volta para a escolha de perfil, com null). */
+  entrar(id: string | null): Promise<void>;
+  criarPerfil(nome: string): Promise<void>;
+  /** Apaga o perfil atual e todos os seus dados. */
+  excluirPerfilAtual(): Promise<void>;
+};
+
+type Contexto = {
+  estado: Estado;
+  /** Terminou de abrir o armazenamento e a lista de perfis. */
+  carregado: boolean;
+  /** Carregando os dados de um perfil. */
+  abrindo: boolean;
+  perfis: ResumoPerfil[];
+  perfilAtivo: ResumoPerfil | null;
+  ondeSalva: 'nuvem' | 'aparelho' | null;
+  /** Mensagem quando a última gravação falhou. */
+  erroSalvar: string | null;
+} & Acoes &
+  AcoesPerfis;
 
 const Ctx = createContext<Contexto | null>(null);
 
-export function ProvedorDados({ children }: { children: ReactNode }) {
-  const [estado, setEstado] = useState<Estado>(VAZIO);
-  const [carregado, setCarregado] = useState(false);
-  const pronto = useRef(false);
+type Atual = { id: string | null; estado: Estado };
 
-  useEffect(() => {
-    AsyncStorage.getItem(CHAVE)
-      .then((txt) => {
-        if (txt) setEstado({ ...VAZIO, ...JSON.parse(txt) });
-      })
-      .catch(() => {})
-      .finally(() => {
-        pronto.current = true;
-        setCarregado(true);
-      });
+export function ProvedorDados({ children }: { children: ReactNode }) {
+  const armazem = useRef<Armazem | null>(null);
+  const [atual, setAtual] = useState<Atual>({ id: null, estado: VAZIO });
+  const [perfis, setPerfis] = useState<ResumoPerfil[]>([]);
+  const [carregado, setCarregado] = useState(false);
+  const [abrindo, setAbrindo] = useState(false);
+  const [erroSalvar, setErroSalvar] = useState<string | null>(null);
+  const [ondeSalva, setOndeSalva] = useState<Armazem['tipo'] | null>(null);
+  // Só grava depois que o perfil terminou de carregar (evita gravar o estado vazio por cima).
+  const carregadoDe = useRef<string | null>(null);
+
+  const entrar = useCallback(async (id: string | null) => {
+    const a = armazem.current;
+    if (!a) return;
+    carregadoDe.current = null;
+    if (!id) {
+      setAtual({ id: null, estado: VAZIO });
+      AsyncStorage.removeItem(CHAVE_PERFIL_ATIVO).catch(() => {});
+      return;
+    }
+    setAbrindo(true);
+    try {
+      const estado = (await a.carregar(id)) ?? VAZIO;
+      carregadoDe.current = id;
+      setAtual({ id, estado: { ...VAZIO, ...estado } });
+      AsyncStorage.setItem(CHAVE_PERFIL_ATIVO, id).catch(() => {});
+    } catch {
+      setErroSalvar('Não foi possível abrir este perfil. Verifique a internet e tente de novo.');
+      setAtual({ id: null, estado: VAZIO });
+    } finally {
+      setAbrindo(false);
+    }
   }, []);
 
   useEffect(() => {
-    if (!pronto.current) return;
-    AsyncStorage.setItem(CHAVE, JSON.stringify(estado)).catch(() => {});
-  }, [estado]);
+    (async () => {
+      const a = await abrirArmazem();
+      armazem.current = a;
+      setOndeSalva(a.tipo);
+      const lista = await a.listarPerfis().catch(() => []);
+      setPerfis(lista);
+      const ultimo = await AsyncStorage.getItem(CHAVE_PERFIL_ATIVO).catch(() => null);
+      // Abre direto o último perfil usado neste aparelho; com um perfil só, abre ele.
+      const escolhido = lista.find((p) => p.id === ultimo) ?? (lista.length === 1 ? lista[0] : undefined);
+      if (escolhido) await entrar(escolhido.id);
+      setCarregado(true);
+    })();
+  }, [entrar]);
 
-  const mudar = useCallback((f: (e: Estado) => Estado) => setEstado(f), []);
+  // Grava as mudanças, juntando alterações rápidas numa só gravação.
+  useEffect(() => {
+    const { id, estado } = atual;
+    if (!id || carregadoDe.current !== id || !armazem.current) return;
+    const t = setTimeout(() => {
+      armazem.current!.salvar(id, estado).then(
+        () => setErroSalvar(null),
+        () =>
+          setErroSalvar(
+            armazem.current?.tipo === 'nuvem'
+              ? 'Não foi possível salvar na nuvem. Se outra pessoa abriu o link, ela precisa de acesso de Colaborador.'
+              : 'Não foi possível salvar neste aparelho.',
+          ),
+      );
+    }, 400);
+    return () => clearTimeout(t);
+  }, [atual]);
 
-  const acoes = useMemo<Acoes>(
+  const mudar = useCallback(
+    (f: (e: Estado) => Estado) => setAtual((a) => (a.id ? { ...a, estado: f(a.estado) } : a)),
+    [],
+  );
+
+  const acoes = useMemo<Acoes & AcoesPerfis>(
     () => ({
       salvarPerfil: (p) =>
         mudar((e) => {
@@ -124,15 +192,50 @@ export function ProvedorDados({ children }: { children: ReactNode }) {
       salvarMeuAlimento: (a) =>
         mudar((e) => ({ ...e, meusAlimentos: [a, ...e.meusAlimentos.filter((m) => m.id !== a.id)] })),
       removerMeuAlimento: (id) => mudar((e) => ({ ...e, meusAlimentos: e.meusAlimentos.filter((m) => m.id !== id) })),
-      apagarTudo: () => {
-        AsyncStorage.removeItem(CHAVE).catch(() => {});
-        mudar(() => VAZIO);
+      entrar,
+      criarPerfil: async (nome) => {
+        const a = armazem.current;
+        if (!a) return;
+        try {
+          const p = await a.criarPerfil(nome);
+          setPerfis(await a.listarPerfis().catch(() => [p]));
+          await entrar(p.id);
+          setErroSalvar(null);
+        } catch {
+          setErroSalvar(
+            a.tipo === 'nuvem'
+              ? 'Não foi possível criar o perfil. Quem abriu o link precisa de acesso de Colaborador.'
+              : 'Não foi possível criar o perfil.',
+          );
+        }
+      },
+      excluirPerfilAtual: async () => {
+        const a = armazem.current;
+        const id = carregadoDe.current;
+        if (!a || !id) return;
+        carregadoDe.current = null;
+        await a.excluirPerfil(id).catch(() => {});
+        setPerfis(await a.listarPerfis().catch(() => []));
+        await entrar(null);
       },
     }),
-    [mudar],
+    [mudar, entrar],
   );
 
-  const valor = useMemo(() => ({ estado, carregado, ...acoes }), [estado, carregado, acoes]);
+  const perfilAtivo = perfis.find((p) => p.id === atual.id) ?? null;
+  const valor = useMemo(
+    () => ({
+      estado: atual.estado,
+      carregado,
+      abrindo,
+      perfis,
+      perfilAtivo,
+      ondeSalva,
+      erroSalvar,
+      ...acoes,
+    }),
+    [atual.estado, carregado, abrindo, perfis, perfilAtivo, ondeSalva, erroSalvar, acoes],
+  );
   return <Ctx.Provider value={valor}>{children}</Ctx.Provider>;
 }
 
